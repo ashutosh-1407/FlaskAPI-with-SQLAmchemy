@@ -1,4 +1,5 @@
 from flask import request
+from flask.wrappers import Response
 from db import db, app
 from models import Product, User, Review
 
@@ -10,43 +11,49 @@ def index():
 def search_review(product_id):
     response = []
     json_response = {}
-    cnt = 1
     if request.method in ('GET'):
         outputs = Review.query.filter_by(product_id=product_id)
         for output in outputs:
             response.append({'User ID': output.user_id,
                             'Product ID': product_id,
-                            'Review': output.review})
-            cnt+=1
+                            'Review': output.review,
+                            'Rating': output.rating})
         json_response['results'] = response
     if request.method == 'POST':
         u_id = request.form.get('userid')
         review = request.form.get('review', 'This is the default review')
-        rating = request.form.get('id', 0.0)
-        output = Review.query.filter_by(product_id=product_id, user_id=u_id, rating=rating, review=review).first()
+        rating = request.form.get('rating', 0.0)
+        output = Review.query.filter_by(product_id=product_id, user_id=u_id).first()
         if output:
-            db.session.delete(output)
+            output.review = review
+            output.rating = rating
             db.session.commit()
-            json_response['result'] = 'success'
+            json_response['result'] = 'success: record updated'
         else:
-            json_response['result'] = 'failure'
+            review_to_insert = Review(id=str(u_id)+str(product_id), review=review, rating=rating, user_id=u_id, product_id=product_id)
+            db.session.add(review_to_insert)
+            db.session.commit()
+            json_response['result'] = 'success: record inserted'
     if request.method == 'DELETE':
-        print(request.form.get('userid'))
-        output = Review.query.filter_by(product_id=product_id, user_id=request.form.get('user_id')).first()
+        output = Review.query.filter_by(product_id=product_id, user_id=request.form.get('userid')).first()
         if output:
             db.session.delete(output)
             db.session.commit()
-            json_response['result'] = 'success'
+            json_response['result'] = 'success: record deleted'
         else:
-            json_response['result'] = 'failure'
+            json_response['result'] = 'failure: record doesn"t exist'
     if request.method == 'PUT':
         u_id = request.form.get('userid')
         review = request.form.get('review', 'This is the default review')
-        rating = request.form.get('id', 0.0)
-        review_to_insert = Review(review=review, rating=rating, user_id=u_id, product_id=product_id)
-        db.session.add(review_to_insert)
-        db.session.commit()
-        json_response['result'] = 'success'
+        rating = request.form.get('rating', 0.0)
+        check_insert = Review.query.filter_by(product_id=product_id, user_id=u_id).first()
+        if check_insert:
+            json_response['result'] = 'failure: record already exist'
+        else:
+            review_to_insert = Review(id=str(u_id)+str(product_id), review=review, rating=rating, user_id=u_id, product_id=product_id)
+            db.session.add(review_to_insert)
+            db.session.commit()
+            json_response['result'] = 'success: record inserted'
 
     return json_response
 

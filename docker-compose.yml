@@ -1,14 +1,5 @@
 version: '2.1' 
 services:  
-    app:    
-        restart: always    
-        build: .
-        ports:      
-            - 5000:5000
-        depends_on:    
-            - database
-        entrypoint: 
-            ["python", "app/app.py"]
     database:    
         restart: always    
         image: postgres:10    
@@ -21,4 +12,12 @@ services:
             - ./dump:/docker-entrypoint-initdb.d
         ports:
             - 5432:5432
-    
+    app:    
+        restart: always    
+        build: .
+        ports:      
+            - 5000:5000
+        depends_on:    
+            - database
+        entrypoint: 
+            ["python", "app/app.py"]

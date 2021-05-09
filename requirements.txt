@@ -4,3 +4,4 @@ SQLAlchemy==1.4.12
 Flask-SQLAlchemy==2.5.1
 postgres==3.0.0
 psycopg2-binary==2.8.6
+Flask-Testing==0.8.1

@@ -11,7 +11,7 @@ class Product(db.Model):
         self.description = description 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=False)
 
     def __init__(self, name) -> None:
@@ -28,8 +28,9 @@ class Review(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
 
-    def __init__(self, review, rating, user_id, product_id) -> None:
+    def __init__(self, id, review, rating, user_id, product_id) -> None:
         super().__init__()
+        self.id = id
         self.review = review
         self.rating = rating
         self.user_id = user_id
