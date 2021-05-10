@@ -1,9 +1,8 @@
 #!/bin/bash
 set -e
 
-psql -v ON_ERROR_STOP=1 --username postgres <<-EOSQL
-    CREATE DATABASE mydb;
-    GRANT ALL PRIVILEGES ON DATABASE mydb TO postgres;
+psql -v ON_ERROR_STOP=1 --username postgres --dbname postgres<<-EOSQL
+    GRANT ALL PRIVILEGES ON DATABASE mydb to postgres;
     \c mydb;
     CREATE TABLE PUBLIC.PRODUCT (
         id INT PRIMARY KEY,
